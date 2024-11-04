@@ -1,7 +1,19 @@
 <script setup lang="ts">
+import type {IEmulatorData} from "~/data/models/IEmulatorData";
+
 const {fileSystemCommands} = useTauriCommands();
 
-const easyRoomPath = ref(await fileSystemCommands.getEasyRomsDevicePath());
+const easyRoomPath = ref<string>();
+const emulatorsData = ref<IEmulatorData>();
+
+{
+  const path = await fileSystemCommands.getEasyRomsDevicePath();
+  if (path) {
+    easyRoomPath.value = path;
+    emulatorsData.value = await fileSystemCommands.getEmulatorsData(path);
+  }
+}
+
 </script>
 
 <template>
@@ -15,6 +27,14 @@ const easyRoomPath = ref(await fileSystemCommands.getEasyRomsDevicePath());
       <strong>Nota:</strong> Normalmente la letra del dispositivo con nombre EASYROOM sera determinada de forma
       automática, de no ser asi, debes seleccionar su ubicación.
     </small>
+
+    <div>
+      <ul v-if="emulatorsData">
+        <li v-for="emulator in emulatorsData" :key="emulator.name">
+          {{ emulator.name }}
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 

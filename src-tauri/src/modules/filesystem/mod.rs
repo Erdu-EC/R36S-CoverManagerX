@@ -1,4 +1,5 @@
 pub mod logical_device;
+pub mod directory;
 
 use std::ffi::OsString;
 use std::os::windows::ffi::OsStringExt;

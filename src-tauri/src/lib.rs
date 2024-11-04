@@ -1,4 +1,7 @@
-use crate::commands::filesystem::filesystem_get_easyroms_device_path;
+use crate::commands::filesystem::{
+    filesystem_get_easyroms_device_path,
+    filesystem_get_emulators,
+};
 
 mod commands;
 mod modules;
@@ -18,7 +21,10 @@ pub fn run() {
             Ok(())
         })
 
-        .invoke_handler(tauri::generate_handler![filesystem_get_easyroms_device_path])
+        .invoke_handler(tauri::generate_handler![
+            filesystem_get_easyroms_device_path,
+            filesystem_get_emulators
+        ])
 
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
