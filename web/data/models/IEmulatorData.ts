@@ -1,4 +1,4 @@
 export interface IEmulatorData {
     name: string,
-    formats: string[],
+    formats: string[]
 }

@@ -4,7 +4,7 @@ import type {IEmulatorData} from "~/data/models/IEmulatorData";
 const {fileSystemCommands} = useTauriCommands();
 
 const easyRoomPath = ref<string>();
-const emulatorsData = ref<IEmulatorData>();
+const emulatorsData = ref<IEmulatorData[]>();
 
 {
   const path = await fileSystemCommands.getEasyRomsDevicePath();

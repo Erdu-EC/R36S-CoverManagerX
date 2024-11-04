@@ -12,7 +12,7 @@ const fileSystemCommands = {
         return invoke<string | null>("filesystem_get_easyroms_device_path");
     },
     getEmulatorsData: async (dirPath: string) => {
-        return invoke<IEmulatorData>('filesystem_get_emulators', {
+        return invoke<IEmulatorData[]>('filesystem_get_emulators', {
             dir: dirPath
         });
     }
