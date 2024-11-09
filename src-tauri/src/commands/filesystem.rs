@@ -40,3 +40,17 @@ pub fn filesystem_get_emulators(dir: String) -> Result<Vec<EmulatorData>, Invoke
 
     Ok(emulators)
 }
+
+#[tauri::command]
+pub fn filesystem_get_roms(dir: String, extensions: Vec<&str>) -> Result<Vec<PathBuf>, InvokeError> {
+    let files = directory::get_files(&dir, if extensions.len() > 0 {
+        Some(extensions.iter().map(|e| OsString::from(e)).collect::<_>())
+    } else {
+        None
+    });
+
+    match files {
+        Ok(f) => Ok(f),
+        Err(e) => Err(InvokeError::from_anyhow(anyhow::Error::new(e))),
+    }
+}

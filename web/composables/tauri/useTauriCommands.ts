@@ -15,5 +15,11 @@ const fileSystemCommands = {
         return invoke<IEmulatorData[]>('filesystem_get_emulators', {
             dir: dirPath
         });
+    },
+    getRoms: async (dirPath: string, extensions?: string[]) => {
+        return invoke<string[]>('filesystem_get_roms', {
+            dir: dirPath,
+            extensions
+        });
     }
 }

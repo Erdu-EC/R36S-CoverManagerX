@@ -1,7 +1,4 @@
-use crate::commands::filesystem::{
-    filesystem_get_easyroms_device_path,
-    filesystem_get_emulators,
-};
+use crate::commands::filesystem::{filesystem_get_easyroms_device_path, filesystem_get_emulators, filesystem_get_roms};
 
 mod commands;
 mod modules;
@@ -23,7 +20,8 @@ pub fn run() {
 
         .invoke_handler(tauri::generate_handler![
             filesystem_get_easyroms_device_path,
-            filesystem_get_emulators
+            filesystem_get_emulators,
+            filesystem_get_roms
         ])
 
         .run(tauri::generate_context!())

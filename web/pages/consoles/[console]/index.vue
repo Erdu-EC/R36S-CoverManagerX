@@ -1,6 +1,17 @@
 <script setup lang="ts">
+import {path} from "@tauri-apps/api";
+
+const route = useRoute();
 const appStore = useAppStore();
-const {emulatorsData} = storeToRefs(appStore);
+const {easyRomsPath, emulatorsData} = storeToRefs(appStore);
+
+const code = route.params.console as string;
+const emulator = computed(() => emulatorsData.value?.filter((emulator) => emulator.name === code).shift()!);
+
+const {fileSystemCommands} = useTauriCommands();
+const emulatorPath = await path.join(easyRomsPath.value, emulator.value.name);
+console.log(emulatorPath);
+console.log(await fileSystemCommands.getRoms(emulatorPath, emulator.value.formats));
 </script>
 
 <template>
