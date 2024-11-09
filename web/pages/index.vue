@@ -1,16 +1,5 @@
 <script setup lang="ts">
-const appStore = useAppStore();
-const {easyRomsPath, emulatorsData} = storeToRefs(appStore);
-
-{
-  const {fileSystemCommands} = useTauriCommands();
-  const path = await fileSystemCommands.getEasyRomsDevicePath();
-
-  if (path) {
-    appStore.setEasyRomsPath(path);
-    appStore.fetchEmulators();
-  }
-}
+const {easyRomsPath, emulatorsData} = storeToRefs(useAppStore());
 </script>
 
 <template>
@@ -32,30 +21,6 @@ const {easyRomsPath, emulatorsData} = storeToRefs(appStore);
           <NuxtLinkLocale :to="`/consoles/${emulator.name}`">
             <EmulatorGridItem :emulator="emulator"/>
           </NuxtLinkLocale>
-        </li>
-        <li v-for="emulator in emulatorsData" :key="emulator.name">
-          <EmulatorGridItem :emulator="emulator"/>
-        </li>
-        <li v-for="emulator in emulatorsData" :key="emulator.name">
-          <EmulatorGridItem :emulator="emulator"/>
-        </li>
-        <li v-for="emulator in emulatorsData" :key="emulator.name">
-          <EmulatorGridItem :emulator="emulator"/>
-        </li>
-        <li v-for="emulator in emulatorsData" :key="emulator.name">
-          <EmulatorGridItem :emulator="emulator"/>
-        </li>
-        <li v-for="emulator in emulatorsData" :key="emulator.name">
-          <EmulatorGridItem :emulator="emulator"/>
-        </li>
-        <li v-for="emulator in emulatorsData" :key="emulator.name">
-          <EmulatorGridItem :emulator="emulator"/>
-        </li>
-        <li v-for="emulator in emulatorsData" :key="emulator.name">
-          <EmulatorGridItem :emulator="emulator"/>
-        </li>
-        <li v-for="emulator in emulatorsData" :key="emulator.name">
-          <EmulatorGridItem :emulator="emulator"/>
         </li>
       </ul>
       <Card v-else class="shrink-0">
