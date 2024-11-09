@@ -6,7 +6,8 @@ export default {
     content: [
         "./index.html",
         "./pages/**/*.{vue,js,ts,jsx,tsx}",
-        "./layouts/**/*.{vue,js,ts,jsx,tsx}",
+        "./layouts/**/*.vue",
+        "./components/**/*.vue",
     ],
     theme: {
         extend: {},

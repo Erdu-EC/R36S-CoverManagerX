@@ -1,14 +1,14 @@
 <script setup lang="ts">
 const props = withDefaults(defineProps<{
   value: string,
-  type?: 'outline'
+  type?: 'outlined'
 }>(), {
-  type: 'outline'
+  type: 'outlined'
 })
 
 const typeClasses = computed(() => {
   return {
-    'material-symbols-outlined': props.type === 'outline'
+    'material-symbols-outlined': props.type === 'outlined'
   }
 });
 </script>

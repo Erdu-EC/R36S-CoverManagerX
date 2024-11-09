@@ -1,4 +1,3 @@
-use std::error::Error;
 use std::ffi::OsString;
 use std::path::PathBuf;
 use tauri::ipc::InvokeError;

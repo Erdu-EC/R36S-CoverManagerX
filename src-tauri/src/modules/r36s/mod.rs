@@ -9,6 +9,18 @@ pub struct EmulatorData {
 pub fn get_emulator_data() -> Vec<EmulatorData> {
     vec![
         EmulatorData {
+            name: "nes",
+            formats: vec![".nes", ".zip"],
+        },
+        EmulatorData {
+            name: "snes",
+            formats: vec![".sfc", ".smc", ".zip"],
+        },
+        EmulatorData {
+            name: "gbc",
+            formats: vec![".gbc", ".zip"],
+        },
+        EmulatorData {
             name: "gba",
             formats: vec![".gba", ".zip"],
         },

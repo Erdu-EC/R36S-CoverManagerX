@@ -1,39 +1,69 @@
 <script setup lang="ts">
-import type {IEmulatorData} from "~/data/models/IEmulatorData";
-
-const {fileSystemCommands} = useTauriCommands();
-
-const easyRoomPath = ref<string>();
-const emulatorsData = ref<IEmulatorData[]>();
+const appStore = useAppStore();
+const {easyRomsPath, emulatorsData} = storeToRefs(appStore);
 
 {
+  const {fileSystemCommands} = useTauriCommands();
   const path = await fileSystemCommands.getEasyRomsDevicePath();
+
   if (path) {
-    easyRoomPath.value = path;
-    emulatorsData.value = await fileSystemCommands.getEmulatorsData(path);
+    appStore.setEasyRomsPath(path);
+    appStore.fetchEmulators();
   }
 }
-
 </script>
 
 <template>
-  <div class="flex flex-col gap-2">
-    <label for="easy-dir" class="block font-bold">EASYROOM</label>
-    <InputGroup>
-      <InputText placeholder="Seleccione la ruta o letra de unidad de EASYROOM..." :value="easyRoomPath"/>
-      <Button icon="material-symbols-outlined before:icon-[folder\_open]" label="Abrir"/>
-    </InputGroup>
-    <small class="text-neutral-500">
-      <strong>Nota:</strong> Normalmente la letra del dispositivo con nombre EASYROOM sera determinada de forma
-      automática, de no ser asi, debes seleccionar su ubicación.
-    </small>
+  <div class="flex flex-col gap-5 h-full">
+    <div class="flex flex-col gap-2">
+      <label for="easy-dir" class="block font-bold">{{ $t('console.storageDeviceName') }}</label>
+      <InputGroup>
+        <InputText placeholder="Seleccione la ruta o letra de unidad de EASYROOM..." :value="easyRomsPath"/>
+        <Button icon="material-symbols-outlined before:icon-[folder\_open]" label="Abrir"/>
+      </InputGroup>
+      <small class="text-neutral-500">
+        <strong>{{ $t('ui.note') }}</strong> {{ $t('pages.main.selectPathNote') }}
+      </small>
+    </div>
 
     <div>
-      <ul v-if="emulatorsData">
+      <ul v-if="emulatorsData?.length" class="grid grid-cols-3 items-end gap-5">
         <li v-for="emulator in emulatorsData" :key="emulator.name">
-          {{ emulator.name }}
+          <NuxtLinkLocale :to="`/consoles/${emulator.name}`">
+            <EmulatorGridItem :emulator="emulator"/>
+          </NuxtLinkLocale>
+        </li>
+        <li v-for="emulator in emulatorsData" :key="emulator.name">
+          <EmulatorGridItem :emulator="emulator"/>
+        </li>
+        <li v-for="emulator in emulatorsData" :key="emulator.name">
+          <EmulatorGridItem :emulator="emulator"/>
+        </li>
+        <li v-for="emulator in emulatorsData" :key="emulator.name">
+          <EmulatorGridItem :emulator="emulator"/>
+        </li>
+        <li v-for="emulator in emulatorsData" :key="emulator.name">
+          <EmulatorGridItem :emulator="emulator"/>
+        </li>
+        <li v-for="emulator in emulatorsData" :key="emulator.name">
+          <EmulatorGridItem :emulator="emulator"/>
+        </li>
+        <li v-for="emulator in emulatorsData" :key="emulator.name">
+          <EmulatorGridItem :emulator="emulator"/>
+        </li>
+        <li v-for="emulator in emulatorsData" :key="emulator.name">
+          <EmulatorGridItem :emulator="emulator"/>
+        </li>
+        <li v-for="emulator in emulatorsData" :key="emulator.name">
+          <EmulatorGridItem :emulator="emulator"/>
         </li>
       </ul>
+      <Card v-else class="shrink-0">
+        <template #content>
+          <MessageWithIcon icon="info" label="No se encontraron emuladores"
+                           class="text-neutral-500" iconClass="!text-6xl"/>
+        </template>
+      </Card>
     </div>
   </div>
 </template>
