@@ -1,54 +1,68 @@
 <script setup lang="ts">
 import {path} from "@tauri-apps/api";
+import type {RomData} from "~/data/models/IRomData";
 
 const route = useRoute();
 const appStore = useAppStore();
+const {fileSystemCommands} = useTauriCommands();
 const {easyRomsPath, emulatorsData} = storeToRefs(appStore);
 
 const code = route.params.console as string;
 const emulator = computed(() => emulatorsData.value?.filter((emulator) => emulator.name === code).shift()!);
-
-const {fileSystemCommands} = useTauriCommands();
 const emulatorPath = await path.join(easyRomsPath.value, emulator.value.name);
-console.log(emulatorPath);
-console.log(await fileSystemCommands.getRoms(emulatorPath, emulator.value.formats));
+
+const {data: roms, error, status, refresh} = useAsyncData(`${code}-roms`, async () => {
+  const roms = await fileSystemCommands.getRoms(emulatorPath, emulator.value.formats);
+  const gameList = await fileSystemCommands.getGameList(emulatorPath);
+
+  for (const rom of roms) {
+    const relativePath = "./" + rom.path.substring(emulatorPath.length + 1).replace('\\', '/');
+    const game = gameList.filter((game) => game.path.replace('\\', '/') == relativePath).shift();
+    if (game)
+      await rom.loadGameListEntry(game, emulatorPath);
+  }
+
+  return roms;
+});
 </script>
 
 <template>
   <div>
-    <DataView :value="emulatorsData" dataKey="name">
+    <Loading v-if="status === 'pending'" :label="$t('pages.romList.loading')"/>
+    <ErrorCard v-else-if="status === 'error' && error" class="mt-5"
+               :title="$t('pages.romList.errorTitle')"
+               :error="error"
+               @refresh="refresh"/>
+
+    <DataView v-if="roms" :value="roms" dataKey="path">
       <template #list="slotProps">
         <div class="flex flex-col">
-          <div v-for="(item, index) in slotProps.items" :key="index">
+          <div v-for="(item, index) in slotProps.items as RomData[]" :key="index">
             <div class="flex flex-col sm:flex-row sm:items-center p-6 gap-4"
                  :class="{ 'border-t border-surface-200 dark:border-surface-700': index !== 0 }">
-              <div class="md:w-40 relative">
-                <img class="block xl:block mx-auto rounded w-full"
-                     :src="`https://primefaces.org/cdn/primevue/images/product/${item.image}`" :alt="item.name"/>
-                <div class="absolute bg-black/70 rounded-border" style="left: 4px; top: 4px">
-                  <Tag :value="item.inventoryStatus"></Tag>
+              <div class="md:w-28 relative">
+                <ImagePlaceholder :src="item.imageUrl" alt="Cover"
+                                  class="flex items-center size-28 aspect-square mx-auto rounded"/>
+                <div class="absolute bg-black/70 rounded-border" style="right: 4px; bottom: 4px">
+
                 </div>
               </div>
               <div class="flex flex-col md:flex-row justify-between md:items-center flex-1 gap-6">
                 <div class="flex flex-row md:flex-col justify-between items-start gap-2">
                   <div>
-                    <span class="font-medium text-surface-500 dark:text-surface-400 text-sm">{{ item.category }}</span>
-                    <div class="text-lg font-medium mt-2">{{ item.name }}</div>
+                    <div class="text-lg font-medium mt-2">{{ item.nameString }}</div>
+                    <span class="font-medium text-surface-500 dark:text-surface-400 text-sm">
+                      {{ item.path }}
+                    </span>
                   </div>
-                  <div class="bg-surface-100 p-1" style="border-radius: 30px">
-                    <div class="bg-surface-0 flex items-center gap-2 justify-center py-1 px-2"
-                         style="border-radius: 30px; box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.04), 0px 1px 2px 0px rgba(0, 0, 0, 0.06)">
-                      <span class="text-surface-900 font-medium text-sm">{{ item.rating }}</span>
-                      <i class="pi pi-star-fill text-yellow-500"></i>
+                  <div class="flex items-center gap-2">
+                    <div class="bg-surface-100 p-1" style="border-radius: 30px">
+                      <div class="bg-surface-0 flex items-center gap-2 justify-center py-1 px-2"
+                           style="border-radius: 30px; box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.04), 0px 1px 2px 0px rgba(0, 0, 0, 0.06)">
+                        <span class="text-surface-900 font-medium text-sm">{{ toFriendlyDataUnit(item.length) }}</span>
+                      </div>
                     </div>
-                  </div>
-                </div>
-                <div class="flex flex-col md:items-end gap-8">
-                  <span class="text-xl font-semibold">${{ item.price }}</span>
-                  <div class="flex flex-row-reverse md:flex-row gap-2">
-                    <Button icon="pi pi-heart" outlined></Button>
-                    <Button icon="pi pi-shopping-cart" label="Buy Now" :disabled="item.inventoryStatus === 'OUTOFSTOCK'"
-                            class="flex-auto md:flex-initial whitespace-nowrap"></Button>
+                    <Tag :value="'.' + item.extensionString"></Tag>
                   </div>
                 </div>
               </div>

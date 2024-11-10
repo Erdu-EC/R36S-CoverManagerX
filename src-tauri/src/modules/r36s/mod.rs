@@ -1,3 +1,5 @@
+pub mod game_list;
+
 use std::path::PathBuf;
 use serde::{Deserialize, Serialize};
 

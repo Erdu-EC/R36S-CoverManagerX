@@ -75,3 +75,9 @@ pub fn filesystem_get_roms(dir: String, extensions: Vec<&str>) -> Result<Vec<Rom
 
     Ok(roms)
 }
+
+#[tauri::command]
+pub fn filesystem_get_game_list(dir: String) -> Result<Vec<r36s::game_list::GameListEntry>, InvokeError> {
+    r36s::game_list::get_game_list(&PathBuf::from(dir))
+        .map_err(|e| InvokeError::from_anyhow(e))
+}
