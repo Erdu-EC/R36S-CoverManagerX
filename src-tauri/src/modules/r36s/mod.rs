@@ -1,9 +1,18 @@
+use std::path::PathBuf;
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct EmulatorData {
     pub name: &'static str,
     pub formats: Vec<&'static str>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct RomData {
+    pub name: Vec<u16>,
+    pub extension: Vec<u16>,
+    pub path: PathBuf,
+    pub length: u64,
 }
 
 pub fn get_emulator_data() -> Vec<EmulatorData> {

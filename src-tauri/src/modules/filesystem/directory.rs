@@ -24,14 +24,14 @@ pub fn get_files(dir: &str, extensions: Option<Vec<OsString>>) -> std::io::Resul
     let mut files = Vec::new();
 
     for entry in entries {
-        let entry = entry?;
-        let path = entry.path();
+        let path = entry?.path();
+        
         if path.is_file() {
             if let Some(extensions) = &extensions {
                 if path.extension().is_none() {
                     continue;
                 }
-                
+
                 let has_extension = extensions.iter().any(|ext| {
                     let mut undotted_ext = OsString::from(".");
                     undotted_ext.push(path.extension().unwrap());

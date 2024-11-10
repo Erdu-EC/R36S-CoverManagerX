@@ -1,10 +1,11 @@
 use std::ffi::OsString;
+use std::os::windows::ffi::OsStrExt;
 use std::path::PathBuf;
 use tauri::ipc::InvokeError;
 use crate::modules::filesystem::{directory, get_removable_devices};
 use crate::modules::filesystem::logical_device::LogicalDevice;
 use crate::modules::r36s;
-use crate::modules::r36s::EmulatorData;
+use crate::modules::r36s::{EmulatorData, RomData};
 
 #[tauri::command]
 pub fn filesystem_get_easyroms_device_path() -> Option<PathBuf> {
@@ -42,15 +43,35 @@ pub fn filesystem_get_emulators(dir: String) -> Result<Vec<EmulatorData>, Invoke
 }
 
 #[tauri::command]
-pub fn filesystem_get_roms(dir: String, extensions: Vec<&str>) -> Result<Vec<PathBuf>, InvokeError> {
+pub fn filesystem_get_roms(dir: String, extensions: Vec<&str>) -> Result<Vec<RomData>, InvokeError> {
     let files = directory::get_files(&dir, if extensions.len() > 0 {
         Some(extensions.iter().map(|e| OsString::from(e)).collect::<_>())
     } else {
         None
     });
 
-    match files {
-        Ok(f) => Ok(f),
-        Err(e) => Err(InvokeError::from_anyhow(anyhow::Error::new(e))),
+    if let Err(e) = files {
+        return Err(InvokeError::from_anyhow(anyhow::Error::new(e)));
     }
+
+    let files = files.unwrap();
+    let mut roms = Vec::new();
+
+    for f in files {
+        let name = f.file_stem().unwrap();
+        let extension = f.extension().unwrap();
+        let length = match f.metadata() {
+            Ok(m) => m.len(),
+            Err(_) => 0,
+        };
+
+        roms.push(RomData {
+            name: name.encode_wide().collect(),
+            extension: extension.encode_wide().collect(),
+            path: f,
+            length,
+        });
+    }
+
+    Ok(roms)
 }
