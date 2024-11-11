@@ -1,5 +1,8 @@
 <script setup lang="ts">
 const {easyRomsPath, emulatorsData} = storeToRefs(useAppStore());
+const {fileSystemCommands} = useTauriCommands();
+
+fileSystemCommands.openDirectoryDialog();
 </script>
 
 <template>

@@ -27,8 +27,8 @@ pub fn get_game_list(dir: &Path) -> Result<Vec<GameListEntry>, Error> {
 
     let doc = XmlDocument::new();
     let doc = doc?;
-    match doc.LoadXml(&HSTRING::from(xml_content?)) {  
-        Ok(_) => {},
+    match doc.LoadXml(&HSTRING::from(xml_content?)) {
+        Ok(_) => {}
         Err(e) => {
             let message = "Failed to load the content of game list file: ".to_owned() + &e.message();
             return anyhow::bail!(message);

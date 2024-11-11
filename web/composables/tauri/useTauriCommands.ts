@@ -29,5 +29,10 @@ const fileSystemCommands = {
         return invoke<IGameListEntry[]>('filesystem_get_game_list', {
             dir: dirPath
         });
+    },
+    openDirectoryDialog: async (onlyIfExists: boolean = true) => {
+        return invoke<string | null>('filesystem_open_directory_dialog', {
+            exists: onlyIfExists
+        });
     }
 }

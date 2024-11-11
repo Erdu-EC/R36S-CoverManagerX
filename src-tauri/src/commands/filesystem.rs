@@ -2,6 +2,8 @@ use std::ffi::OsString;
 use std::os::windows::ffi::OsStrExt;
 use std::path::PathBuf;
 use tauri::ipc::InvokeError;
+use tauri::{Window};
+use crate::modules::windows;
 use crate::modules::filesystem::{directory, get_removable_devices};
 use crate::modules::filesystem::logical_device::LogicalDevice;
 use crate::modules::r36s;
@@ -80,4 +82,10 @@ pub fn filesystem_get_roms(dir: String, extensions: Vec<&str>) -> Result<Vec<Rom
 pub fn filesystem_get_game_list(dir: String) -> Result<Vec<r36s::game_list::GameListEntry>, InvokeError> {
     r36s::game_list::get_game_list(&PathBuf::from(dir))
         .map_err(|e| InvokeError::from_anyhow(e))
+}
+
+#[tauri::command]
+pub fn filesystem_open_directory_dialog(window: Window) {
+    let hwnd = window.hwnd().expect("Error al obtener el identificador de la ventana.");
+    windows::dialogs::open_directory_dialog(hwnd);
 }

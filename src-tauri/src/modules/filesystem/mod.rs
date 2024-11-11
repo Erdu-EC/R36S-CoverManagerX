@@ -1,12 +1,12 @@
 pub mod logical_device;
 pub mod directory;
 
-use std::ffi::OsString;
+use std::ffi::{OsString};
 use std::os::windows::ffi::OsStringExt;
 use std::path::PathBuf;
 use windows::Win32::Storage::FileSystem;
 use crate::modules::enums::DriveTypes;
-use crate::utils::pcwstr;
+use crate::utils::{pcwstr};
 
 fn get_logical_devices() -> Vec<PathBuf> {
     let letters = &mut [0; 130];

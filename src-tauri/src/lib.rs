@@ -1,4 +1,4 @@
-use crate::commands::filesystem::{filesystem_get_easyroms_device_path, filesystem_get_emulators, filesystem_get_game_list, filesystem_get_roms};
+use crate::commands::filesystem::{filesystem_get_easyroms_device_path, filesystem_get_emulators, filesystem_get_game_list, filesystem_get_roms, filesystem_open_directory_dialog};
 
 mod commands;
 mod modules;
@@ -22,7 +22,8 @@ pub fn run() {
             filesystem_get_easyroms_device_path,
             filesystem_get_emulators,
             filesystem_get_roms,
-            filesystem_get_game_list
+            filesystem_get_game_list,
+            filesystem_open_directory_dialog
         ])
 
         .run(tauri::generate_context!())
