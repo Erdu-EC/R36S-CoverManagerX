@@ -1,3 +1,5 @@
+use std::ffi::OsString;
+use std::os::windows::ffi::OsStrExt;
 use std::path::{Path};
 use anyhow::Error;
 use serde::{Deserialize, Serialize};
@@ -8,9 +10,9 @@ const GAME_LIST_FILE: &str = "gamelist.xml";
 
 #[derive(Serialize, Deserialize)]
 pub(crate) struct GameListEntry {
-    path: String,
-    name: String,
-    image: String
+    path: Vec<u16>,
+    name: Vec<u16>,
+    image: Vec<u16>,
 }
 
 pub fn get_game_list(dir: &Path) -> Result<Vec<GameListEntry>, Error> {
@@ -39,10 +41,14 @@ pub fn get_game_list(dir: &Path) -> Result<Vec<GameListEntry>, Error> {
     let games = doc.GetElementsByTagName(h!("game"))?;
     for i in 0..games.Length()? {
         let game = games.Item(i)?;
-        let path = game.SelectSingleNode(h!("path"))?.InnerText()?.to_string();
-        let name = game.SelectSingleNode(h!("name"))?.InnerText()?.to_string();
-        let image = game.SelectSingleNode(h!("image"))?.InnerText()?.to_string();
-        game_list.push(GameListEntry { path, name, image });
+        let path = game.SelectSingleNode(h!("path")).map_or(OsString::new(), |n| n.InnerText().unwrap().to_os_string());
+        let name = game.SelectSingleNode(h!("name")).map_or(OsString::new(), |n| n.InnerText().unwrap().to_os_string());
+        let image = game.SelectSingleNode(h!("image")).map_or(OsString::new(), |n| n.InnerText().unwrap().to_os_string());
+        game_list.push(GameListEntry {
+            path: path.encode_wide().collect::<Vec<u16>>(),
+            name: name.encode_wide().collect::<Vec<u16>>(),
+            image: image.encode_wide().collect::<Vec<u16>>()
+        });
     }
 
     Ok(game_list)

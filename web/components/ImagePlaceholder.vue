@@ -1,7 +1,8 @@
 <script setup lang="ts">
 const props = defineProps<{
   src: string | null,
-  alt: string
+  alt: string,
+  imageClass?: string,
 }>();
 
 const image = ref<HTMLImageElement>();
@@ -27,7 +28,7 @@ const onError = () => {
     </div>
 
     <img ref="image" v-if="src && !error" :src="src" :alt="alt" @load="onLoad" @error="onError"
-         :class="{'opacity-0': loading}">
+         :class="[{'opacity-0': loading}, imageClass]">
 
   </div>
 </template>

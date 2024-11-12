@@ -1,36 +1,42 @@
+use crate::utils;
+use std::ffi::OsString;
+use std::os::windows::ffi::OsStringExt;
+use std::path::PathBuf;
 use windows::core::{w, PWSTR};
 use windows::Win32::Foundation::{HWND, MAX_PATH};
 use windows::Win32::System::Com::{CoCreateInstance, CLSCTX_INPROC_SERVER};
 use windows::Win32::UI::Controls::Dialogs;
 use windows::Win32::UI::Controls::Dialogs::{OFN_FILEMUSTEXIST, OFN_NOCHANGEDIR, OFN_PATHMUSTEXIST, OPENFILENAMEW};
-use windows::Win32::UI::Shell::{FileOpenDialog, IFileDialog, FOS_PICKFOLDERS, SIGDN_FILESYSPATH};
+use windows::Win32::UI::Shell::{FileOpenDialog, IFileDialog, FOS_PATHMUSTEXIST, FOS_PICKFOLDERS, SIGDN_FILESYSPATH};
 
-pub fn open_directory_dialog(hwnd: HWND) {
-    let file_dialog: IFileDialog = unsafe { CoCreateInstance(&FileOpenDialog, None, CLSCTX_INPROC_SERVER).unwrap() };
-    // Configura el diálogo para seleccionar carpetas
-
+pub fn open_directory_dialog(hwnd: HWND) -> Option<PathBuf>  {
     unsafe {
-        file_dialog.SetOptions(FOS_PICKFOLDERS).expect("TODO: panic message");
+        let file_dialog: IFileDialog = CoCreateInstance(&FileOpenDialog, None, CLSCTX_INPROC_SERVER).unwrap();
+        file_dialog.SetOptions(FOS_PICKFOLDERS | FOS_PATHMUSTEXIST)
+            .expect("Error al establecer las opciones del diálogo.");
 
-        // Muestra el diálogo al usuario
-        if file_dialog.Show(hwnd).is_ok() {
-            // Obtiene el resultado de la carpeta seleccionada
-            let item = file_dialog.GetResult();
+        match file_dialog.Show(hwnd) {
+            Ok(_) => {
+                let item = file_dialog.GetResult();
+                if let Ok(item) = item {
+                    let path = item.GetDisplayName(SIGDN_FILESYSPATH).unwrap();
 
-            if let Ok(item) = item {
-                // Obtiene la ruta de la carpeta seleccionada
-                let path = item.GetDisplayName(SIGDN_FILESYSPATH).unwrap();
-                println!("Directorio seleccionado: {:?}", path.to_string());
+                    Some(PathBuf::from(OsString::from_wide(path.as_wide())))
+                }
+                else {
+                    println!("No se seleccionó ningún directorio.");
+                    None
+                }
             }
-        } else {
-            println!("No se seleccionó ningún directorio.");
+            Err(e) => {
+                println!("No se seleccionó ningún directorio: {:?}", e);
+                None
+            }
         }
     }
-
-    ()
 }
 
-pub fn open_file_dialog() {
+pub fn open_file_dialog() -> Option<PathBuf> {
     let mut directory_path: [u16; MAX_PATH as usize] = [0; MAX_PATH as usize];
     let mut settings = OPENFILENAMEW {
         lStructSize: size_of::<OPENFILENAMEW>() as u32,
@@ -60,4 +66,11 @@ pub fn open_file_dialog() {
     };
 
     let _ = unsafe { Dialogs::GetOpenFileNameW(&mut settings) };
+
+    let directory_path = utils::trim_wide_null(&directory_path);
+    if directory_path.is_empty() {
+        None
+    } else {
+        Some(PathBuf::from(OsString::from_wide(&directory_path)))
+    }
 }

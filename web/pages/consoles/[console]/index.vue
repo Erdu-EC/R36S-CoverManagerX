@@ -42,7 +42,8 @@ const {data: roms, error, status, refresh} = useAsyncData(`${code}-roms`, async 
                  :class="{ 'border-t border-surface-200 dark:border-surface-700': index !== 0 }">
               <div class="md:w-28 relative">
                 <ImagePlaceholder :src="item.imageUrl" alt="Cover"
-                                  class="flex items-center size-28 aspect-square mx-auto rounded"/>
+                                  class="flex items-center size-28 aspect-square mx-auto rounded"
+                                  imageClass="object-scale-down"/>
                 <div class="absolute bg-black/70 rounded-border" style="right: 4px; bottom: 4px">
 
                 </div>

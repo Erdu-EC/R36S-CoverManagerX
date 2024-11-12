@@ -1,1 +1,1 @@
-export type OsString = number[];
+export type OsString = number[] | string;

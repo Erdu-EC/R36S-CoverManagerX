@@ -16,7 +16,7 @@ const emulator = computed(() => emulatorsData.value?.filter((emulator) => emulat
         <figcaption class="sr-only">Console:</figcaption>
 
         <img :src="`/img/emulators/${code}.svg`" :alt="`Logo ${code}`"
-             class="h-full"/>
+             class="h-full object-scale-down"/>
       </figure>
       <div class="grid gap-y-2 gap-x-5">
         <div class="flex flex-col items-start gap-2">

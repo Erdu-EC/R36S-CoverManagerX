@@ -1,8 +1,16 @@
 <script setup lang="ts">
-const {easyRomsPath, emulatorsData} = storeToRefs(useAppStore());
+const appStore = useAppStore();
+const {setEasyRomsPath, fetchEmulators} = appStore;
+const {easyRomsPath, emulatorsData} = storeToRefs(appStore);
 const {fileSystemCommands} = useTauriCommands();
 
-fileSystemCommands.openDirectoryDialog();
+const openEasyRomDirectoryDialog = async () => {
+  const path = await fileSystemCommands.openDirectoryDialog();
+  if (path) {
+    setEasyRomsPath(path);
+    fetchEmulators();
+  }
+};
 </script>
 
 <template>
@@ -11,7 +19,8 @@ fileSystemCommands.openDirectoryDialog();
       <label for="easy-dir" class="block font-bold">{{ $t('console.storageDeviceName') }}</label>
       <InputGroup>
         <InputText placeholder="Seleccione la ruta o letra de unidad de EASYROOM..." :value="easyRomsPath"/>
-        <Button icon="material-symbols-outlined before:icon-[folder\_open]" label="Abrir"/>
+        <Button icon="material-symbols-outlined before:icon-[folder\_open]" label="Abrir"
+                @click="openEasyRomDirectoryDialog"/>
       </InputGroup>
       <small class="text-neutral-500">
         <strong>{{ $t('ui.note') }}</strong> {{ $t('pages.main.selectPathNote') }}

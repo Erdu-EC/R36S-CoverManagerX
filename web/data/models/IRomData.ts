@@ -1,7 +1,7 @@
 import type {OsString} from "~/data/types/OsString";
-import type {IGameListEntry} from "~/data/models/IGameListEntry";
 import {path} from "@tauri-apps/api";
 import {convertFileSrc} from "@tauri-apps/api/core";
+import {GameListEntry} from "~/data/models/IGameListEntry";
 
 export interface IRomData {
     name: OsString;
@@ -16,7 +16,7 @@ export class RomData {
     public path: string;
     public length: number;
 
-    private gameListEntry?: IGameListEntry;
+    private gameListEntry?: GameListEntry;
 
     constructor(data: IRomData) {
         this.name = data.name;
@@ -37,7 +37,7 @@ export class RomData {
         return `${this.nameString}.${this.extensionString}`;
     }
 
-    public async loadGameListEntry(gameListEntry: IGameListEntry, basePath: string) {
+    public async loadGameListEntry(gameListEntry: GameListEntry, basePath: string) {
         if (gameListEntry.image)
             gameListEntry.image = await path.join(basePath, gameListEntry.image);
         this.gameListEntry = gameListEntry;

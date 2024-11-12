@@ -45,7 +45,7 @@ pub fn filesystem_get_emulators(dir: String) -> Result<Vec<EmulatorData>, Invoke
 }
 
 #[tauri::command]
-pub fn filesystem_get_roms(dir: String, extensions: Vec<&str>) -> Result<Vec<RomData>, InvokeError> {
+pub async  fn filesystem_get_roms(dir: String, extensions: Vec<&str>) -> Result<Vec<RomData>, InvokeError> {
     let files = directory::get_files(&dir, if extensions.len() > 0 {
         Some(extensions.iter().map(|e| OsString::from(e)).collect::<_>())
     } else {
@@ -79,13 +79,13 @@ pub fn filesystem_get_roms(dir: String, extensions: Vec<&str>) -> Result<Vec<Rom
 }
 
 #[tauri::command]
-pub fn filesystem_get_game_list(dir: String) -> Result<Vec<r36s::game_list::GameListEntry>, InvokeError> {
+pub async fn filesystem_get_game_list(dir: String) -> Result<Vec<r36s::game_list::GameListEntry>, InvokeError> {
     r36s::game_list::get_game_list(&PathBuf::from(dir))
         .map_err(|e| InvokeError::from_anyhow(e))
 }
 
 #[tauri::command]
-pub fn filesystem_open_directory_dialog(window: Window) {
+pub fn filesystem_open_directory_dialog(window: Window) -> Option<PathBuf> {
     let hwnd = window.hwnd().expect("Error al obtener el identificador de la ventana.");
-    windows::dialogs::open_directory_dialog(hwnd);
+    windows::dialogs::open_directory_dialog(hwnd)
 }
