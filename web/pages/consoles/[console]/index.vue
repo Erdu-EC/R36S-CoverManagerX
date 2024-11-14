@@ -28,13 +28,14 @@ const {data: roms, error, status, refresh} = useAsyncData(`${code}-roms`, async 
 
 <template>
   <div>
-    <Loading v-if="status === 'pending'" :label="$t('pages.romList.loading')"/>
+    <Loading v-if="status === 'pending'" :label="$t('pages.romList.loading')" class="mt-5"/>
+
     <ErrorCard v-else-if="status === 'error' && error" class="mt-5"
                :title="$t('pages.romList.errorTitle')"
                :error="error"
                @refresh="refresh"/>
 
-    <DataView v-if="roms" :value="roms" dataKey="path">
+    <DataView v-else-if="roms" :value="roms" dataKey="path">
       <template #list="slotProps">
         <div class="flex flex-col">
           <div v-for="(item, index) in slotProps.items as RomData[]" :key="index">
@@ -59,7 +60,7 @@ const {data: roms, error, status, refresh} = useAsyncData(`${code}-roms`, async 
                   <div class="flex items-center gap-2">
                     <div class="bg-surface-100 p-1" style="border-radius: 30px">
                       <div class="bg-surface-0 flex items-center gap-2 justify-center py-1 px-2"
-                           style="border-radius: 30px; box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.04), 0px 1px 2px 0px rgba(0, 0, 0, 0.06)">
+                           style="border-radius: 30px; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.06)">
                         <span class="text-surface-900 font-medium text-sm">{{ toFriendlyDataUnit(item.length) }}</span>
                       </div>
                     </div>

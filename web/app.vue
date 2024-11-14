@@ -13,14 +13,19 @@
 <script setup lang="ts">
 import "./assets/vendor/material-symbols/outlined.css";
 
-const {fileSystemCommands} = useTauriCommands();
-const path = await fileSystemCommands.getEasyRomsDevicePath();
+const appStore = useAppStore();
+const {easyRomsPath} = storeToRefs(appStore);
 
-if (path) {
-  const appStore = useAppStore();
-  appStore.setEasyRomsPath(path);
-  appStore.fetchEmulators();
+if (!easyRomsPath.value) {
+  const {fileSystemCommands} = useTauriCommands();
+  const path = await fileSystemCommands.getEasyRomsDevicePath();
+
+  if (path)
+    appStore.setEasyRomsPath(path);
 }
+
+if (easyRomsPath.value)
+  await appStore.fetchEmulators();
 </script>
 
 <style lang="scss">
