@@ -35,6 +35,9 @@ export default defineNuxtConfig({
         langDir: '.',
         //baseUrl: 'https://my-nuxt-app.com'
     },
+    pinia: {
+        storesDirs: ['./stores/**'],
+    },
     imports: {
         dirs: [
             'composables',

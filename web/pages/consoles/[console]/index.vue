@@ -1,33 +1,15 @@
 <script setup lang="ts">
-import {path} from "@tauri-apps/api";
 import type {RomData} from "~/data/models/IRomData";
+import type {VirtualScrollerItemOptions} from "primevue";
 
 const route = useRoute();
-const appStore = useAppStore();
-const {fileSystemCommands} = useTauriCommands();
-const {easyRomsPath, emulatorsData} = storeToRefs(appStore);
+const {emulator, getRomList} = useRomCoversPage(route.params.console as string);
 
-const code = route.params.console as string;
-const emulator = computed(() => emulatorsData.value?.filter((emulator) => emulator.name === code).shift()!);
-const emulatorPath = await path.join(easyRomsPath.value, emulator.value.name);
-
-const {data: roms, error, status, refresh} = useAsyncData(`${code}-roms`, async () => {
-  const roms = await fileSystemCommands.getRoms(emulatorPath, emulator.value.formats);
-  const gameList = await fileSystemCommands.getGameList(emulatorPath);
-
-  for (const rom of roms) {
-    const relativePath = "./" + rom.path.substring(emulatorPath.length + 1).replace('\\', '/');
-    const game = gameList.filter((game) => game.path.replace('\\', '/') == relativePath).shift();
-    if (game)
-      await rom.loadGameListEntry(game, emulatorPath);
-  }
-
-  return roms;
-});
+const {data: roms, error, status, refresh} = useLazyAsyncData(`${emulator.value.name}-roms`, getRomList);
 </script>
 
 <template>
-  <div>
+  <div class="h-full">
     <Loading v-if="status === 'pending'" :label="$t('pages.romList.loading')" class="mt-5"/>
 
     <ErrorCard v-else-if="status === 'error' && error" class="mt-5"
@@ -35,44 +17,40 @@ const {data: roms, error, status, refresh} = useAsyncData(`${code}-roms`, async 
                :error="error"
                @refresh="refresh"/>
 
-    <DataView v-else-if="roms" :value="roms" dataKey="path">
-      <template #list="slotProps">
-        <div class="flex flex-col">
-          <div v-for="(item, index) in slotProps.items as RomData[]" :key="index">
-            <div class="flex flex-col sm:flex-row sm:items-center p-6 gap-4"
-                 :class="{ 'border-t border-surface-200 dark:border-surface-700': index !== 0 }">
-              <div class="md:w-28 relative">
-                <ImagePlaceholder :src="item.imageUrl" alt="Cover"
-                                  class="flex items-center size-28 aspect-square mx-auto rounded"
-                                  imageClass="object-scale-down"/>
-                <div class="absolute bg-black/70 rounded-border" style="right: 4px; bottom: 4px">
-
+    <VirtualScroller v-else-if="roms" :items="roms" :itemSize="153" class="rounded" style="height: 100%"
+                     :pt-options="{mergeProps: true}" :pt="{
+                        content: 'w-full'
+                      }">
+      <template v-slot:item="{ item, options } : {item: RomData, options: VirtualScrollerItemOptions}">
+        <div :class="['flex flex-col sm:flex-row sm:items-center p-5 gap-4', {
+            'bg-surface-100 dark:bg-surface-700': options.odd,
+             'border-t border-surface-200 dark:border-surface-700': options.index !== 0
+        }]">
+          <div class="md:w-28 relative">
+            <ImagePlaceholder :src="item.imageUrl" alt="Cover"
+                              class="flex items-center size-28 aspect-square mx-auto rounded"
+                              imageClass="object-scale-down"/>
+          </div>
+          <div class="flex flex-row md:flex-col justify-between items-start gap-2 overflow-hidden">
+            <div class="w-full">
+              <div class="text-lg font-medium mt-2" :title="item.nameString">{{ item.nameString }}</div>
+              <div class="font-medium text-surface-500 dark:text-surface-400 text-sm truncate" :title="item.path">
+                {{ item.path }}
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="bg-surface-100 p-1" style="border-radius: 30px">
+                <div class="bg-surface-0 flex items-center gap-2 justify-center py-1 px-2"
+                     style="border-radius: 30px; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.06)">
+                  <span class="text-surface-900 font-medium text-sm">{{ toFriendlyDataUnit(item.length) }}</span>
                 </div>
               </div>
-              <div class="flex flex-col md:flex-row justify-between md:items-center flex-1 gap-6">
-                <div class="flex flex-row md:flex-col justify-between items-start gap-2">
-                  <div>
-                    <div class="text-lg font-medium mt-2">{{ item.nameString }}</div>
-                    <span class="font-medium text-surface-500 dark:text-surface-400 text-sm">
-                      {{ item.path }}
-                    </span>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <div class="bg-surface-100 p-1" style="border-radius: 30px">
-                      <div class="bg-surface-0 flex items-center gap-2 justify-center py-1 px-2"
-                           style="border-radius: 30px; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.06)">
-                        <span class="text-surface-900 font-medium text-sm">{{ toFriendlyDataUnit(item.length) }}</span>
-                      </div>
-                    </div>
-                    <Tag :value="'.' + item.extensionString"></Tag>
-                  </div>
-                </div>
-              </div>
+              <Tag :value="'.' + item.extensionString"></Tag>
             </div>
           </div>
         </div>
       </template>
-    </DataView>
+    </VirtualScroller>
   </div>
 </template>
 
